@@ -3,6 +3,7 @@
 
 ### dotenv ###
 .env
+ai.env
 
 ### Node ###
 # Logs
@@ -169,6 +170,5 @@ sketch
 pyvenv.cfg
 .venv
 pip-selfcheck.json
-ai.env
 
 # End of https://www.toptal.com/developers/gitignore/api/node,react,dotenv,venv
