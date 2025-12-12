@@ -1,0 +1,147 @@
+import React from 'react';
+import mermaid from 'mermaid';
+import {GitGraph, BrainCircuit, Book} from 'lucide-react';
+
+interface ResultDisplayProps {
+    points: string;
+    diagram: string;
+    reasoning?: string;
+}
+
+export const ResultDisplay: React.FC<ResultDisplayProps> = ({ points, diagram, reasoning }) => {
+    const diagramRef = React.useRef<HTMLDivElement>(null);
+
+    // Normalize diagram text to a clean Mermaid definition
+    const cleanDiagram = React.useMemo(() => {
+        if (!diagram) return '';
+        let raw = diagram.trim();
+        // Strip outer backticks/quotes if the whole payload is wrapped
+        raw = raw.replace(/^`+|`+$/g, '').replace(/^"+|"+$/g, '');
+
+        // Prefer fenced mermaid block content if present
+        const fenceMatch = raw.match(/```(?:mermaid)?\s*([\s\S]*?)```/i);
+        let content = fenceMatch ? fenceMatch[1].trim() : raw;
+
+        // Remove any lingering fence markers on individual lines
+        content = content.replace(/^\s*```(?:mermaid)?\s*/i, '').replace(/\s*```$/i, '');
+
+        // If a 'graph' line exists, keep everything from that line to the end
+        const graphStart = content.search(/^\s*graph\s+/im);
+        if (graphStart >= 0) {
+            content = content.slice(graphStart).trim();
+        }
+
+        // Ensure the first line has a direction and a semicolon
+        content = content.replace(/^(graph\s+[A-Za-z]+)\s*;?/i, (_m, g1) => `${g1};`);
+
+        // If it still doesn't start with graph, prefix a default
+        if (!/^\s*graph\s+/i.test(content)) {
+            content = `graph TD;\n${content}`;
+        }
+
+        // Helpful debugging in dev
+        try { console.debug('Mermaid cleanDiagram:', content); } catch {}
+
+        return content.trim();
+    }, [diagram]);
+
+    // Unique render ID per component instance to avoid clashes
+    const renderId = React.useMemo(
+        () => `mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        []
+    );
+
+    React.useEffect(() => {
+        if (!diagramRef.current) return;
+        if (!cleanDiagram) {
+            diagramRef.current.innerHTML = `<div class="text-gray-400">No diagram provided.</div>`;
+            return;
+        }
+        // Initialize Mermaid (once per render cycle)
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#a855f7',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#c084fc',
+                lineColor: '#c084fc',
+                secondaryColor: '#ec4899',
+                tertiaryColor: '#1e293b',
+            }
+        });
+
+        // Validate diagram before rendering to avoid cryptic parse errors
+        try {
+            mermaid.parse(cleanDiagram);
+        } catch (err) {
+            if (diagramRef.current) {
+                diagramRef.current.innerHTML = `<div class=\"text-red-400\">Invalid Mermaid diagram.<br/><pre class='text-xs text-gray-300 whitespace-pre-wrap mt-2'>${cleanDiagram}</pre></div>`;
+            }
+            return;
+        }
+
+        // Clear previous content and render
+        diagramRef.current.innerHTML = '';
+        mermaid
+            .render(renderId, cleanDiagram)
+            .then(({ svg }) => {
+                if (diagramRef.current) {
+                    diagramRef.current.innerHTML = svg;
+                }
+            })
+            .catch(() => {
+                if (diagramRef.current) {
+                    diagramRef.current.innerHTML = `<div class=\"text-red-400\">Invalid Mermaid diagram.<br/><pre class='text-xs text-gray-300 whitespace-pre-wrap mt-2'>${cleanDiagram}</pre></div>`;
+                }
+            });
+    }, [cleanDiagram, renderId]);
+
+    const pointsList = points.split('\n').filter(p => p.trim());
+
+    return (
+        <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-8">
+            {/* Points Section */}
+            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 shadow-2xl">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span className="text-purple-400"><Book /></span> Key Points
+                </h2>
+                <ul className="space-y-3">
+                    {pointsList.map((point, index) => (
+                        <li 
+                            key={index} 
+                            className="text-gray-200 text-lg flex items-start gap-3 hover:text-white transition-colors"
+                        >
+                            <span className="text-purple-400 mt-1">•</span>
+                            <span>{point.replace(/^-\s*/, '').replace(/^\d+\.\s*/, '')}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            {/* Diagram Section */}
+            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 shadow-2xl">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span className="text-pink-400"><GitGraph /></span> Visual Diagram
+                </h2>
+                <div 
+                    ref={diagramRef}
+                    className="flex justify-center items-center p-4 bg-slate-900/50 rounded-xl"
+                />
+            </div>
+
+            {/* Reasoning Section (Optional) */}
+            {reasoning !== undefined && reasoning !== null && reasoning !== '' && (
+                <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="text-blue-400"><BrainCircuit /></span> AI Reasoning
+                    </h2>
+                    <pre className="text-gray-300 text-sm whitespace-pre-wrap font-mono bg-slate-900/50 p-4 rounded-xl overflow-x-auto">
+                        {reasoning}
+                    </pre>
+                </div>
+            )}
+        </div>
+    );
+};

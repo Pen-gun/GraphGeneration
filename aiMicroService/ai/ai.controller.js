@@ -33,7 +33,7 @@ const aiModelCall = async (topic) => {
         // Fallback to a known working default
         response = await client.chatCompletion(
             {
-                model: "deepseek-ai/DeepSeek-R1-0528:fastest",
+                model: model,
                 messages: [
                     { role: "user", content: prompt },
                 ],
