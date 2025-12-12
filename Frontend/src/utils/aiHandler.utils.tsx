@@ -1,9 +1,16 @@
-import { useQueries } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 
-const fetchAIResponse = async (prompt: string) => {
-    const response = await axios.post('/api/ai/generate', { prompt })
+const fetchResponse = async (prompt: string) => {
+    const response = await axios.post('/api/generate', { prompt })
     return response.data
 }
 
-export {fetchAIResponse}
+const fetchAIResponse = (prompt: string) => {
+    return useQuery({
+        queryKey: ['aiResponse', prompt],
+        queryFn: () => fetchResponse(prompt)
+    })
+}
+
+export { fetchAIResponse }  

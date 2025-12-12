@@ -22,9 +22,9 @@ app.listen(PORT, () => {
 });
 
 //import routes
-import {generate} from './ai/ai.controller.js'
+import aiRoutes from './routes/ai.route.js';
 
 //define routes
-app.post('/generate', generate);
+app.use('/api/v1/ai', aiRoutes);
 
 export default app;
