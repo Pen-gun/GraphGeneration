@@ -54,6 +54,24 @@ export { aiModelCall };
 export const generate = async (req, res) => {
     try {
         const topic = req.body?.topic;
+
+        // Quick test/bypass: if the incoming topic looks like a Mermaid definition,
+        // return it directly without calling the model. Also allow explicit 'diagram' override.
+        const overrideDiagram = typeof req.body?.diagram === "string" ? req.body.diagram.trim() : null;
+        const candidate = overrideDiagram ?? (typeof topic === "string" ? topic.trim() : "");
+        if (candidate) {
+            // Extract fenced mermaid if provided
+            const fenceMatch = candidate.match(/```(?:mermaid)?\s*([\s\S]*?)```/i);
+            const maybeDiagram = fenceMatch ? fenceMatch[1].trim() : candidate;
+            if (/^\s*graph\s+/i.test(maybeDiagram)) {
+                return res.json({
+                    points: ["User-provided diagram test"],
+                    diagram: maybeDiagram,
+                    reasoning: "Bypass: using user-provided Mermaid diagram from request",
+                });
+            }
+        }
+
         const result = await aiModelCall(topic);
         res.json(result);
     } catch (err) {

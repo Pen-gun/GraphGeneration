@@ -3,7 +3,7 @@ import mermaid from 'mermaid';
 import {GitGraph, BrainCircuit, Book} from 'lucide-react';
 
 interface ResultDisplayProps {
-    points: string;
+    points: string | string[];
     diagram: string;
     reasoning?: string;
 }
@@ -98,7 +98,16 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({ points, diagram, r
             });
     }, [cleanDiagram, renderId]);
 
-    const pointsList = points.split('\n').filter(p => p.trim());
+    const pointsList = React.useMemo(() => {
+        if (!points) return [] as string[];
+        if (Array.isArray(points)) {
+            return points.filter(p => typeof p === 'string' && p.trim());
+        }
+        if (typeof points === 'string') {
+            return points.split(/\r?\n/).filter(p => p.trim());
+        }
+        return [] as string[];
+    }, [points]);
 
     return (
         <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-8">
