@@ -66,7 +66,7 @@ const homePage = () => {
         <Layout>
             <div className="min-h-screen w-full flex flex-col">
                 {/* Chat Messages Area */}
-                <div className="flex overflow-y-auto pb-48 pt-8">
+                <div className="flex flex-col overflow-y-auto pb-48 pt-8">
 
                     {messages.map((message, index) => (
                         <div key={message.id} className="w-full px-4 mb-8">
