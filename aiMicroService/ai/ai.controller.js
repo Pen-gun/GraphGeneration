@@ -17,7 +17,7 @@ const aiModelCall = async (topic) => {
     const prompt = makePrompt(topic);
 
     let response;
-    const model = process.env.HF_MODEL || "deepseek-ai/DeepSeek-R1-0528:fastest";
+    const model = process.env.HF_MODEL;
     try {
         response = await client.chatCompletion(
             {

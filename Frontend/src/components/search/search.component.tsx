@@ -21,6 +21,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         onSearch(query);
+        setQuery('');
     };
 
     return (
