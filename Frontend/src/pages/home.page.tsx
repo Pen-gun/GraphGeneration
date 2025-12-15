@@ -66,13 +66,13 @@ const homePage = () => {
         <Layout>
             <div className="min-h-screen w-full flex flex-col">
                 {/* Chat Messages Area */}
-                <div className="flex-1 overflow-y-auto pb-48 pt-8">
+                <div className="flex overflow-y-auto pb-48 pt-8">
 
                     {messages.map((message, index) => (
                         <div key={message.id} className="w-full px-4 mb-8">
                             {/* User Query */}
-                            <div className="max-w-4xl mx-auto mb-6">
-                                <div className="bg-purple-600/20 border border-purple-500/30 rounded-2xl p-4">
+                            <div className="max-w-6xl mx-auto mb-6">
+                                <div className="bg-purple-600/20 border border-purple-500/30 rounded-2xl p-4 ml-auto w-fit">
                                     <p className="text-white text-lg">{message.query}</p>
                                 </div>
                             </div>

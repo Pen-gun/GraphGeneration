@@ -1,6 +1,6 @@
 import React from 'react';
 import mermaid from 'mermaid';
-import {GitGraph, BrainCircuit, Book} from 'lucide-react';
+import { GitGraph, BrainCircuit, Book } from 'lucide-react';
 
 interface ResultDisplayProps {
     points: string | string[];
@@ -40,7 +40,7 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({ points, diagram, r
         }
 
         // Helpful debugging in dev
-        try { console.debug('Mermaid cleanDiagram:', content); } catch {}
+        try { console.debug('Mermaid cleanDiagram:', content); } catch { }
 
         return content.trim();
     }, [diagram]);
@@ -118,8 +118,8 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({ points, diagram, r
                 </h2>
                 <ul className="space-y-3">
                     {pointsList.map((point, index) => (
-                        <li 
-                            key={index} 
+                        <li
+                            key={index}
                             className="text-gray-200 text-lg flex items-start gap-3 hover:text-white transition-colors"
                         >
                             <span className="text-purple-400 mt-1">•</span>
@@ -134,7 +134,7 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({ points, diagram, r
                 <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
                     <span className="text-pink-400"><GitGraph /></span> Visual Diagram
                 </h2>
-                <div 
+                <div
                     ref={diagramRef}
                     className="flex justify-center items-center p-4 bg-slate-900/50 rounded-xl"
                 />
@@ -144,9 +144,11 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({ points, diagram, r
             {reasoning !== undefined && reasoning !== null && reasoning !== '' && (
                 <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 shadow-2xl">
                     <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                        <span className="text-blue-400"><BrainCircuit /></span> AI Reasoning
+                        <span className="text-blue-400"><BrainCircuit /></span>
+                        AI Reasoning
                     </h2>
-                    <pre className="text-gray-300 text-sm whitespace-pre-wrap font-mono bg-slate-900/50 p-4 rounded-xl overflow-x-auto">
+                    <pre
+                        className="text-gray-300 text-sm bg-slate-900/50 p-4 rounded-xl max-h-64 overflow-y-auto font-mono whitespace-pre-wrap ">
                         {reasoning}
                     </pre>
                 </div>

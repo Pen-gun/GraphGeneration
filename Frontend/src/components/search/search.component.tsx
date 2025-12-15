@@ -26,7 +26,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
     return (
         <div className={`flex justify-center w-full transition-all duration-500 ${
-            hasResults ? 'py-3' : 'pt-32 min-h-screen'
+            hasResults ? 'py-3' : 'pt-95 min-h-screen'
         }`}>
             <form
                 className={`w-full px-4 transition-all duration-500 ${hasResults ? 'max-w-2xl' : 'max-w-4xl'}`}
@@ -44,6 +44,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                         value={query}
                         onChange={handleChange}
                         placeholder={placeholder}
+                        autoFocus
                     />
                     <button
                         type="submit"
