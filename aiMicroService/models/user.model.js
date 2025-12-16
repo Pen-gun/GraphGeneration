@@ -31,10 +31,6 @@ const userSchema = new Schema({
         type: String,
         required: [true, 'Password is required'],
     },
-    history: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Query',
-    }],
     refreshToken: {
         type: String,
     },

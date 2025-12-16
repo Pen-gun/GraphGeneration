@@ -9,5 +9,4 @@ router.route('/').post(verifyJWT, createQuery);
 router.route('/').get(verifyJWT, getUserQueries);
 router.route('/:id').delete(verifyJWT, deleteQuery);
 
-
 export default router;
