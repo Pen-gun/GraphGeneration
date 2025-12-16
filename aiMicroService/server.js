@@ -1,33 +1,17 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
 import connectToDB from './db/connectToDatabase.helper.js';
+import dotenv from 'dotenv';
+import app from './app.js';
 
 dotenv.config({path: './ai.env'});
 
-const app = express();
-const PORT = process.env.PORT;
-app.use(cors(
-    {
-        origin: process.env.FRONTEND_URL,
-    }
-));
-app.use(express.json({
-    limit: '50mb'
-}));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static('public'));
-
-connectToDB();
-
-app.listen(PORT, () => {
-    console.log(`AI Microservice is running on port ${PORT}`);
+connectToDB().then(()=>{
+    app.listen(process.env.PORT, ()=>{
+        console.log(`Server is running on port ${process.env.PORT}`);
+    });
+    app.on('error', (err)=>{
+        console.error("Error starting the server", err);
+    });
+}).catch((err)=>{
+    console.error("Failed to connect to the database", err);
+    process.exit(1);
 });
-
-//import routes
-import aiRoutes from './routes/ai.route.js';
-
-//define routes
-app.use('/api/v1/ai', aiRoutes);
-
-export default app;
