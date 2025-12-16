@@ -1,4 +1,4 @@
-import apiError from "../utils/ApiError";
+import apiError from "../utils/ApiError.js";
 import asyncHandler from '../utils/asyncHandler.js';
 import apiResponse from '../utils/ApiResponse.js';
 import { Query } from "../models/query.model.js";

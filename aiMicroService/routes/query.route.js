@@ -1,5 +1,5 @@
-import { getUserQueries, deleteQuery, createQuery } from "../controllers/query.controller";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { getUserQueries, deleteQuery, createQuery } from "../controllers/query.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { Router } from "express";
 
 const router = Router();
