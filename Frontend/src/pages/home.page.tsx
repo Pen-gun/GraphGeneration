@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { SearchBar } from "../components/search/search.component.tsx";
 import { ResultDisplay } from "../components/result/result.component.tsx";
-import { useAIResponse } from "../utils/aiHandler.utils.tsx";
+import { useAIResponse } from "../hooks/aiHandler.hook.tsx";
 
 interface ChatMessage {
     id: string;
