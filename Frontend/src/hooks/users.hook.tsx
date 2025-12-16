@@ -1,12 +1,14 @@
-import axios from "axios";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import api from '../utils/axios-utils.tsx'
 
 type LoginCredentials =
   | { email: string; password: string; username?: never }
   | { username: string; password: string; email?: never };
 
+  const userKey = ['currentUser'];
 
-const registerUser = () => {
+const useRegisterUser = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['registerUser'],
         mutationFn: async (userData: {
@@ -15,57 +17,63 @@ const registerUser = () => {
             email: string;
             password: string;
         }) => {
-            const res = await axios.post('/api/v1/users/', userData);
+            const res = await api.post('/api/v1/users/', userData);
             return res.data;    
         },
         onSuccess: (data) => {
             console.log("User registered successfully:", data);
+            queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {
             console.error("Error registering user:", error);
         }
     })
 };
-const loginUser = () => {
+const useLoginUser = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['loginUser'],
         mutationFn: async (credentials: LoginCredentials) => {
-            const res = await axios.post('/api/v1/users/login', credentials);
+            const res = await api.post('/api/v1/users/login', credentials);
             return res.data;
         },
         onSuccess: (data) => {
             console.log("User logged in successfully:", data);
+            queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {
             console.error("Error logging in user:", error);
         }
     });
 };
-const logoutUser = () => {
+const useLogoutUser = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['logoutUser'],
         mutationFn: async () => {
-            const res = await axios.post('/api/v1/users/logout');
+            const res = await api.post('/api/v1/users/logout');
             return res.data;
         },
         onSuccess: (data) => {
             console.log("User logged out successfully:", data);
+            queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {
             console.error("Error logging out user:", error);
         }   
     });
 };
-const profile = () => {
+const useProfile = () => {
     return useQuery({
-        queryKey: ['userProfile'],
+        queryKey: userKey,
         queryFn: async () => {
-            const res = await axios.get('/api/v1/users/profile');
+            const res = await api.get('/api/v1/users/profile');
             return res.data;
-        }
+        },
+        retry: false,
     })
 };
-const changePassword = () => {
+const useChangePassword = () => {
     return useMutation({
         mutationKey: ['changePassword'],
         mutationFn: async (passwordData: {
@@ -73,7 +81,7 @@ const changePassword = () => {
             newPassword: string;
             confirmPassword: string;
         }) => {
-            const res = await axios.post('/api/v1/users/change-password', passwordData);
+            const res = await api.post('/api/v1/users/change-password', passwordData);
             return res.data;
         },
         onSuccess: (data) => {
@@ -84,16 +92,17 @@ const changePassword = () => {
         }
     });
 };
-const refreshAccessToken = () => {
+const useRefreshAccessToken = () => {
     return useMutation({
         mutationKey: ['refreshAccessToken'],
         mutationFn: async () => {
-            const res = await axios.post('/api/v1/users/refresh-token');
+            const res = await api.post('/api/v1/users/refresh-token');
             return res.data;
         }
     });
 };
-const updateProfile = () => {
+const useUpdateProfile = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ['updateProfile'],
         mutationFn: async (profileData: {
@@ -101,11 +110,12 @@ const updateProfile = () => {
             email?: string;
             username?: string;
         }) => {
-            const res = await axios.put('/api/v1/users/update-profile', profileData);
+            const res = await api.put('/api/v1/users/update-profile', profileData);
             return res.data;
         },
         onSuccess: (data) => {
             console.log("Profile updated successfully:", data);
+            queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {
             console.error("Error updating profile:", error);
@@ -113,4 +123,4 @@ const updateProfile = () => {
     });
 };
 
-export { registerUser, loginUser, logoutUser, profile, changePassword, refreshAccessToken, updateProfile };
+export { useRegisterUser, useLoginUser, useLogoutUser, useProfile, useChangePassword, useRefreshAccessToken, useUpdateProfile };

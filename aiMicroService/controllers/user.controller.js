@@ -137,6 +137,7 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new apiError(401, "old password is incorrect");
     }
     user.password = newPassword;
+    user.refreshToken = null; // Invalidate existing refresh tokens
     await user.save({ validateBeforeSave: false });
     return res.status(200).json(
         new apiResponse(200, null, "password changed successfully")
@@ -181,7 +182,7 @@ const updateAccount = asyncHandler(async (req, res) => {
         userId,
         { $set: updateFields },
         { new: true, runValidators: true }
-    );
+    ).select('-password -refreshToken');
 
     return res.status(200).json(
         new apiResponse(200, updatedUser, "Account updated successfully")
@@ -206,7 +207,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         secure: true,
     };
     try {
-        const {accessToken, refreshToken} = user.generateAccessToken(user._id);
+        const {accessToken, refreshToken} = await generateRefreshAndAccessToken(user._id);
         return res.status(200)
         .cookie('accessToken', accessToken, options)
         .cookie('refreshToken', refreshToken, options)
