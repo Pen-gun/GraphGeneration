@@ -25,13 +25,16 @@ const userSchema = new Schema({
         index: true, // for faster search
     },
     avatar: {
-        type: String, //cloudinary url
-        required: true,
+        type: String,
     },
     password: {
         type: String,
         required: [true, 'Password is required'],
     },
+    history: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Query',
+    }],
     refreshToken: {
         type: String,
     },
