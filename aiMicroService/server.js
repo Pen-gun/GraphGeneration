@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import connectToDB from './db/connectToDatabase.helper.js';
 
 dotenv.config({path: './ai.env'});
 
@@ -16,6 +17,8 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static('public'));
+
+connectToDB();
 
 app.listen(PORT, () => {
     console.log(`AI Microservice is running on port ${PORT}`);
