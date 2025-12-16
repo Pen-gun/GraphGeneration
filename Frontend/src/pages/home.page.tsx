@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import Layout from "../layout/layout";
 import { SearchBar } from "../components/search/search.component.tsx";
 import { ResultDisplay } from "../components/result/result.component.tsx";
 import { useAIResponse } from "../utils/aiHandler.utils.tsx";
@@ -63,7 +62,6 @@ const homePage = () => {
     };
 
     return (
-        <Layout>
             <div className="min-h-screen w-full flex flex-col">
                 {/* Chat Messages Area */}
                 <div className="flex flex-col overflow-y-auto pb-48 pt-8">
@@ -118,7 +116,6 @@ const homePage = () => {
                     />
                 </div>
             </div>
-        </Layout>
     );
 }
 export default homePage;

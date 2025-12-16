@@ -12,7 +12,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
         <>
           <Routes>
-            <Route path='/' element={<HomePage  />} />
+            <Route path='/' element={<HomePage/>} />
           </Routes>
         </>
       <ReactQueryDevtools initialIsOpen={false} />
