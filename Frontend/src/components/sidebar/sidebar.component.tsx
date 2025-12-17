@@ -81,10 +81,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     }`}
             >
                 {/* Header */}
-                <div className="p-4 border-b border-white/10">
+                <div className="p-4 border-b border-white/10 flex flex-col space-y-4 items-center justify-center">
                     <div className="flex items-center gap-2 mb-4 hover:cursor-pointer" onClick={() => navigate('/')}>
-                        <Sparkles className="w-6 h-6" />
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-600 bg-clip-text text-transparent">
+                        <Sparkles className="w-6 h-6 text-blue-400" />
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                            {/* <img src="/softechlogo.png" alt="Softech AI" className="inline w-27 h-6 mx-10"/> */}
                             Softech AI
                         </h1>
                     </div>
@@ -92,7 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     {/* New Chat Button */}
                     <button
                         onClick={handleNewChat}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700 text-white font-medium rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                        className="w-50 flex items-center justify-center px-2 py-1 hover:from-gray-500 hover:to-gray-700 text-white font-medium rounded-xl transition-all transform hover:scale-[1.02] hover:cursor-pointer active:scale-[0.98] shadow-lg"
                     >
                         <Plus className="w-5 h-5" />
                         New Chat
@@ -174,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             </button>
                             <button
                                 onClick={() => navigate('/register')}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all"
+                                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-lg transition-all"
                             >
                                 Create account
                             </button>

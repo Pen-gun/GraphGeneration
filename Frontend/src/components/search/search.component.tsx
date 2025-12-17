@@ -34,7 +34,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             >
                 <div className="relative">
                     {!hasResults && (
-                        <div className="text-2xl font-bold mb-4 text-center">
+                        <div className="text-3xl font-bold mb-4 text-center bg-gradient-to-r from-red-400 to-green-600 bg-clip-text text-transparent">
                             Softech AI
                         </div>
                     )}
