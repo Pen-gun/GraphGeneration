@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { useProfile, useLoginUser, useLogoutUser, useRegisterUser } from '../hooks/users.hook';
+import { useProfile, useLoginUser, useLogoutUser, useRegisterUser } from '../hooks/users.hook.tsx';
 import type { User, LoginCredentials, RegisterData } from '../types/types';
 
 interface AuthContextType {

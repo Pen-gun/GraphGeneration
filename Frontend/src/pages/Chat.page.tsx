@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { SearchBar } from '../components/search/search.component';
 import { ResultDisplay } from '../components/result/result.component';
 import { Sidebar } from '../components/sidebar/sidebar.component';
@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Chat: React.FC = () => {
     const { conversationId } = useParams();
+    const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentQuery, setCurrentQuery] = useState<string>('');
@@ -27,7 +28,7 @@ const Chat: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isPending]);
 
-    // Load conversation if conversationId exists
+    // Load conversation if conversationId exists; do NOT auto clear when it doesn't
     useEffect(() => {
         if (conversationId && queriesData?.data) {
             const conversation = queriesData.data.find((q: any) => q._id === conversationId);
@@ -43,11 +44,20 @@ const Chat: React.FC = () => {
                 };
                 setMessages([loadedMessage]);
             }
-        } else {
-            // New chat
-            setMessages([]);
         }
     }, [conversationId, queriesData]);
+
+    // Clear messages only on explicit newChat navigation state
+    useEffect(() => {
+        const state = (location as any).state as { newChat?: boolean } | null;
+        if (state?.newChat) {
+            setMessages([]);
+            // Remove the state to avoid repeated clears
+            try {
+                window.history.replaceState({}, document.title, location.pathname);
+            } catch {}
+        }
+    }, [location]);
 
     // Update messages when AI data arrives
     useEffect(() => {

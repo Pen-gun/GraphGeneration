@@ -56,6 +56,10 @@ const useLogoutUser = () => {
         },
         onSuccess: (data) => {
             console.log("User logged out successfully:", data);
+            // Clear auth state immediately so UI reflects logged-out status
+            queryClient.setQueryData(userKey, null);
+            // Also clear any cached queries/history so guests don't see old data
+            queryClient.removeQueries({ queryKey: ['queries'] });
             queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {

@@ -22,7 +22,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const queries = queriesData?.data || [];
 
     const handleNewChat = () => {
-        navigate('/');
+        // Signal explicit new chat to Chat page
+        navigate('/', { state: { newChat: true } });
         onToggle();
     };
 
@@ -51,8 +52,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         try {
             await logout();
             toast.success('Logged out successfully');
-            navigate('/');
-            window.location.reload();
         } catch (error) {
             toast.error('Failed to logout');
         }
