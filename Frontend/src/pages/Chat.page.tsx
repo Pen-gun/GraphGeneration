@@ -127,6 +127,12 @@ const Chat: React.FC = () => {
                     <div className="text-center">
                         <p className="text-red-400 text-lg">Error loading data.</p>
                         <p className="text-gray-400 mt-2">Please try again later.</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="mt-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+                        >
+                            Retry
+                        </button>
                     </div>
                 </div>
             </div>

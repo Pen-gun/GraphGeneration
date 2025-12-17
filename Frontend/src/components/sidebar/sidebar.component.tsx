@@ -82,9 +82,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             >
                 {/* Header */}
                 <div className="p-4 border-b border-white/10">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="w-6 h-6 text-purple-400" />
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    <div className="flex items-center gap-2 mb-4 hover:cursor-pointer" onClick={() => navigate('/')}>
+                        <Sparkles className="w-6 h-6" />
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-gray-400 to-gray-600 bg-clip-text text-transparent">
                             Softech AI
                         </h1>
                     </div>
@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     {/* New Chat Button */}
                     <button
                         onClick={handleNewChat}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-500 hover:to-gray-700 text-white font-medium rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                     >
                         <Plus className="w-5 h-5" />
                         New Chat
