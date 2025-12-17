@@ -1,8 +1,0 @@
-
-
-const sidebarComponent = () => {
-    const menuItems = [
-        {}
-    ]
-
-};

@@ -35,13 +35,15 @@ const useDeleteQuery = () => {
         }
     });
 };
-const useGetQueries = () => {
+const useGetQueries = (enabled: boolean = true) => {
     return useQuery({
         queryKey: query,
         queryFn: async () => {
             const res = await api.get('/queries/');
             return res.data;
-        }
+        },
+        enabled,
+        retry: enabled ? 3 : false,
     });
 };
 

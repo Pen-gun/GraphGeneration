@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import api from '../utils/axios-utils';
 
 export const useAIResponse = () => {
     return useMutation({
         mutationFn: async (prompt: string) => {
-            const response = await axios.post('/api/v1/ai/generate', { topic: prompt });
+            const response = await api.post('/ai/generate', { topic: prompt });
             return response.data;
         }
     });
-};  
+};

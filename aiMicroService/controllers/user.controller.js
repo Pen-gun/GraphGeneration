@@ -77,9 +77,12 @@ const loginUser = asyncHandler(async (req, res) => {
     }
     const {refreshToken, accessToken} = await generateRefreshAndAccessToken(user._id);
     const userData = await User.findById(user._id).select('-password -refreshToken');
+    const isHttps = process.env.FRONTEND_URL?.startsWith('https://');
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: !!isHttps,
+        sameSite: isHttps ? 'none' : 'lax',
+        path: '/',
     };
 
     return res.status(200)
@@ -110,9 +113,12 @@ const logOutUser = asyncHandler(async (req, res) => {
             new: true
         }
     )
+    const isHttps = process.env.FRONTEND_URL?.startsWith('https://');
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: !!isHttps,
+        sameSite: isHttps ? 'none' : 'lax',
+        path: '/',
     }
     return res
         .status(200)
@@ -151,43 +157,50 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccount = asyncHandler(async (req, res) => {
-    const { fullName, username, email } = req.body;
+    let { fullName, username, email } = req.body;
 
-    // Require at least one field
+    // Trim inputs
+    fullName = fullName?.trim();
+    username = username?.trim();
+    email = email?.trim()?.toLowerCase();
+
     if (!fullName && !username && !email) {
         throw new apiError(400, "At least one field is required to update!");
     }
 
     const userId = req.user._id;
-    const existed = await User.findOne({
-        _id: { $ne: userId },  // exclude current user
-        $or: [
-            username ? { username } : null,
-            email ? { email } : null
-        ].filter(Boolean)
-    });
 
-    if (existed) {
-        throw new apiError(409, "Username or email already in use!");
+    // Only check uniqueness if username or email is provided
+    if (username || email) {
+        const existed = await User.findOne({
+            _id: { $ne: userId },
+            $or: [
+                username && { username },
+                email && { email }
+            ].filter(Boolean)
+        });
+
+        if (existed) {
+            throw new apiError(409, "Username or email already in use!");
+        }
     }
 
-    // Build update object only with provided fields
     const updateFields = {};
     if (fullName) updateFields.fullName = fullName;
     if (username) updateFields.username = username;
     if (email) updateFields.email = email;
 
-    // Update and return new user
     const updatedUser = await User.findByIdAndUpdate(
         userId,
         { $set: updateFields },
         { new: true, runValidators: true }
-    ).select('-password -refreshToken');
+    ).select("-password -refreshToken");
 
     return res.status(200).json(
         new apiResponse(200, updatedUser, "Account updated successfully")
     );
 });
+
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incommingrefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
@@ -202,9 +215,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     if(incommingrefreshToken !== user.refreshToken){
         throw new apiError(401, "invalid refresh token!");
     }
+    const isHttps = process.env.FRONTEND_URL?.startsWith('https://');
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: !!isHttps,
+        sameSite: isHttps ? 'none' : 'lax',
+        path: '/',
     };
     try {
         const {accessToken, refreshToken} = await generateRefreshAndAccessToken(user._id);

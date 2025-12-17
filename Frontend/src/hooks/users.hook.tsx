@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from '../utils/axios-utils.tsx'
 
 type LoginCredentials =
-  | { email: string; password: string; username?: never }
-  | { username: string; password: string; email?: never };
+    | { email: string; password: string; username?: never }
+    | { username: string; password: string; email?: never };
 
-  const userKey = ['currentUser'];
+const userKey = ['currentUser'];
 
 const useRegisterUser = () => {
     const queryClient = useQueryClient();
@@ -17,8 +17,8 @@ const useRegisterUser = () => {
             email: string;
             password: string;
         }) => {
-            const res = await api.post('/api/v1/users/', userData);
-            return res.data;    
+            const res = await api.post('/users/', userData);
+            return res.data;
         },
         onSuccess: (data) => {
             console.log("User registered successfully:", data);
@@ -34,7 +34,7 @@ const useLoginUser = () => {
     return useMutation({
         mutationKey: ['loginUser'],
         mutationFn: async (credentials: LoginCredentials) => {
-            const res = await api.post('/api/v1/users/login', credentials);
+            const res = await api.post('/users/login', credentials);
             return res.data;
         },
         onSuccess: (data) => {
@@ -51,7 +51,7 @@ const useLogoutUser = () => {
     return useMutation({
         mutationKey: ['logoutUser'],
         mutationFn: async () => {
-            const res = await api.post('/api/v1/users/logout');
+            const res = await api.post('/users/logout');
             return res.data;
         },
         onSuccess: (data) => {
@@ -60,14 +60,14 @@ const useLogoutUser = () => {
         },
         onError: (error) => {
             console.error("Error logging out user:", error);
-        }   
+        }
     });
 };
 const useProfile = () => {
     return useQuery({
         queryKey: userKey,
         queryFn: async () => {
-            const res = await api.get('/api/v1/users/profile');
+            const res = await api.get('/users/profile');
             return res.data;
         },
         retry: false,
@@ -81,7 +81,7 @@ const useChangePassword = () => {
             newPassword: string;
             confirmPassword: string;
         }) => {
-            const res = await api.post('/api/v1/users/change-password', passwordData);
+            const res = await api.post('/users/change-password', passwordData);
             return res.data;
         },
         onSuccess: (data) => {
@@ -96,7 +96,7 @@ const useRefreshAccessToken = () => {
     return useMutation({
         mutationKey: ['refreshAccessToken'],
         mutationFn: async () => {
-            const res = await api.post('/api/v1/users/refresh-token');
+            const res = await api.post('/users/refresh-token');
             return res.data;
         }
     });
@@ -110,7 +110,7 @@ const useUpdateProfile = () => {
             email?: string;
             username?: string;
         }) => {
-            const res = await api.put('/api/v1/users/update-profile', profileData);
+            const res = await api.patch('/users/update-profile', profileData);
             return res.data;
         },
         onSuccess: (data) => {

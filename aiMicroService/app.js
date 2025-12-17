@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
 
+// Load environment variables early
+dotenv.config({ path: './ai.env' });
 
 const app = express();
 
@@ -9,6 +12,8 @@ app.use(cors(
     {
         origin: process.env.FRONTEND_URL,
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     }
 ));
 app.use(express.json({
@@ -27,5 +32,16 @@ import queryRouter from './routes/query.route.js';
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/queries', queryRouter);
+
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    // Ensure CORS headers are set
+    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(statusCode).json({ statusCode, message, success: false });
+});
 
 export default app;
