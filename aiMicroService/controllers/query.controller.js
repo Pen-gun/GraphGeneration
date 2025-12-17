@@ -37,7 +37,7 @@ const deleteQuery = asyncHandler(async (req, res) => {
     if (!query) {
         throw new apiError(404, "query not found!");
     }
-    if(userid.toString() !== query.owner.toString()){
+    if (userid.toString() !== query.owner.toString()) {
         throw new apiError(403, "forbidden! you are not allowed to delete this query.");
     }
     await Query.findByIdAndDelete(queryid);
@@ -46,4 +46,13 @@ const deleteQuery = asyncHandler(async (req, res) => {
     );
 });
 
-export { createQuery, getUserQueries, deleteQuery };
+const countQueries = asyncHandler(async (req, res) => {
+    const totalQueries = await Query.countDocuments({
+        owner: req.user._id
+    });
+    return res.status(200).json(
+        new apiResponse(200, { totalQueries }, "total queries counted successfully!")
+    );
+});
+
+export { createQuery, getUserQueries, deleteQuery, countQueries };

@@ -47,4 +47,15 @@ const useGetQueries = (enabled: boolean = true) => {
     });
 };
 
-export {useCreateQuery, useDeleteQuery, useGetQueries};
+const countQueries = () => {
+    return useQuery({
+        queryKey: ['countQueries'],
+        queryFn: async () => {
+            const res = await api.get('/queries/count');
+            return res.data;
+        },
+        retry: 3,
+    });
+};
+
+export {useCreateQuery, useDeleteQuery, useGetQueries, countQueries};

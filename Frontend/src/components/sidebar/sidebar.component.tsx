@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, LogOut, User, Menu, X, Sparkles } from 'lucide-react';
-import { useGetQueries, useDeleteQuery } from '../../hooks/query.hook';
+import { useGetQueries, useDeleteQuery } from '../../hooks/query.hook.tsx';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../hooks/useToast.hook';
 import { ConversationItem } from './ConversationItem';
