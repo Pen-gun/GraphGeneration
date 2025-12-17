@@ -49,8 +49,7 @@ const aiModelCall = async (topic) => {
 };
 
 export { aiModelCall };
-// Express route handler for POST /generate
-// Expects body { topic: string }
+
 export const generate = async (req, res) => {
     try {
         const topic = req.body?.topic;

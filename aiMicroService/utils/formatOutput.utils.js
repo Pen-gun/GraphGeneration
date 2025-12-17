@@ -69,6 +69,6 @@ export function parseHFResponse(hfJson) {
   return {
     points: points || "No points detected.",
     diagram: diagram || "graph TD; A-->B;",
-    reasoning: reasoning,
+    reasoning: reasoning || "No reasoning detected.",
   };
 }
