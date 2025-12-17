@@ -1,10 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
-
-// Load environment variables early
-dotenv.config({ path: './ai.env' });
 
 const app = express();
 
