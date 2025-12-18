@@ -346,7 +346,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Your Name** - [GitHub Profile](https://github.com/yourusername)
+- **My Profile** - [GitHub Profile](https://github.com/Pen-Gun)
 
 ## 🙏 Acknowledgments
 
@@ -357,7 +357,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Support
 
-For support, email your-email@example.com or open an issue in the GitHub repository.
+For support, email namshang715@gmail.com or open an issue in the GitHub repository.
 
 ---
 
