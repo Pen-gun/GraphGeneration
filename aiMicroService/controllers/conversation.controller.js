@@ -24,9 +24,7 @@ const getConversations = asyncHandler(async (req, res) => {
     const conversations = await Conversation.find({ owner: userId })
         .select("title lastMessage createdAt updatedAt")
         .sort({ lastMessage: -1 });
-    if (!conversations) {
-        throw new apiError(404, "No conversations found");
-    };
+    
     return res
         .status(200)
         .json(new apiResponse(200, conversations, "Conversations fetched"));

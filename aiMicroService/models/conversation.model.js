@@ -21,4 +21,7 @@ const conversationSchema = new Schema({
     }
 },{timestamps: true});
 
+// Index for efficient conversation list queries
+conversationSchema.index({ owner: 1, lastMessage: -1 });
+
 export const Conversation = mongoose.model('Conversation', conversationSchema);

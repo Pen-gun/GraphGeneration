@@ -32,4 +32,8 @@ const querySchema = new Schema({
     }
 },{timestamps: true});
 
+// Indexes for performance
+querySchema.index({ conversationId: 1, createdAt: 1 });
+querySchema.index({ owner: 1 });
+
 export const Query = mongoose.model('Query', querySchema);
