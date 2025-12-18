@@ -1,6 +1,12 @@
 import mongoose, {Schema} from "mongoose";
 
 const querySchema = new Schema({
+    
+    conversationId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Conversation',
+        required: true,
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -8,7 +14,6 @@ const querySchema = new Schema({
     },
     topic: {
         type: String,
-        required: true,
     },
     points: {
         type: [String],
@@ -16,7 +21,13 @@ const querySchema = new Schema({
     },
     diagram: {
         type: String,
+        required: true,
     },
+    role: {
+        type: String,
+        enum: ['user', 'assistant'],
+        default: 'user',
+    }
 },{timestamps: true});
 
 export const Query = mongoose.model('Query', querySchema);
