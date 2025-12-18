@@ -92,17 +92,13 @@ const addQueryToConversation = asyncHandler(async (req, res) => {
         throw new apiError(404, "conversation not found or access denied");
     }
 
-    // Save user's query first
-    let userMessage = await Query.create({
-        conversationId,
-        owner: userId,
-        topic,
-        points: points || [],
-        diagram: diagram || '',
-        role: 'user',
-    });
-
-    conversation.messages.push(userMessage._id);
+    // Build conversation history BEFORE adding new message
+    const conversationHistory = conversation.messages
+        .filter(msg => msg.role) // Only include messages with role
+        .map(msg => ({
+            role: msg.role,
+            content: msg.topic || msg.points?.join('\n') || ''
+        }));
 
     // Generate AI response using conversation history
     let aiPoints = [];
@@ -110,15 +106,7 @@ const addQueryToConversation = asyncHandler(async (req, res) => {
     let aiReasoning = '';
 
     try {
-        // Build conversation history for AI context
-        const conversationHistory = conversation.messages
-            .filter(msg => msg.role) // Only include messages with role
-            .map(msg => ({
-                role: msg.role,
-                content: msg.topic || msg.points?.join('\n') || ''
-            }));
-
-        // Call AI model with conversation history
+        // Call AI model with conversation history (excludes current message)
         const aiResult = await ollamaModelCall(topic, conversationHistory);
         aiPoints = aiResult.points || [];
         aiDiagram = aiResult.diagram || '';
@@ -131,17 +119,29 @@ const addQueryToConversation = asyncHandler(async (req, res) => {
         aiReasoning = aiError.message;
     }
 
+    // Save user's query
+    const userMessage = await Query.create({
+        conversationId,
+        owner: userId,
+        topic,
+        points: points || [],
+        diagram: diagram || '',
+        role: 'user',
+    });
+
     // Save AI's response as assistant message
     const assistantMessage = await Query.create({
         conversationId,
         owner: userId,
         topic,
-        points: Array.isArray(aiPoints) ? aiPoints : [aiPoints],
+        points: Array.isArray(aiPoints) ? aiPoints : 
+               (typeof aiPoints === 'string' ? aiPoints.split('\n').filter(p => p.trim()) : [aiPoints]),
         diagram: aiDiagram,
         role: 'assistant',
     });
 
-    conversation.messages.push(assistantMessage._id);
+    // Update conversation only after both messages are successfully created
+    conversation.messages.push(userMessage._id, assistantMessage._id);
     conversation.lastMessage = new Date();
     await conversation.save();
 

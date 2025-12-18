@@ -9,6 +9,8 @@ const conversationSchema = new Schema({
     title: {
         type: String,
         default: 'New Conversation',
+        maxlength: 100,
+        trim: true,
     },
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
