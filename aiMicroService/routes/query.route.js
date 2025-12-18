@@ -10,4 +10,5 @@ router.route('/').get(verifyJWT, getUserQueries);
 router.route('/:id').delete(verifyJWT, deleteQuery);
 router.route('/count').get(verifyJWT, countQueries);
 
+
 export default router;

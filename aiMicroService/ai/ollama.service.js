@@ -5,17 +5,26 @@ import { parseHFResponse } from "../utils/formatOutput.utils.js";
 const ollama = new Ollama({ host: process.env.OLLAMA_HOST });
 
 // Pure function: call local Ollama and return normalized output
-export const ollamaModelCall = async (topic) => {
+// Accepts optional conversation history for multi-turn context
+export const ollamaModelCall = async (topic, conversationHistory = []) => {
     if (!topic || typeof topic !== "string") {
         throw new Error("Please provide a topic string");
     }
     const prompt = makePrompt(topic);
+    
+    // Build messages array: include conversation history + current prompt
+    const messages = [
+        ...conversationHistory.map(msg => ({
+            role: msg.role || 'user',
+            content: msg.content || msg.topic || ''
+        })),
+        { role: 'user', content: prompt }
+    ];
+    
     try {
         const response = await ollama.chat({
             model: process.env.OLLAMA_MODEL,
-            messages: [
-                { role: 'user', content: prompt }
-            ],
+            messages: messages,
             // Ask for strict JSON; many community models adhere enough for parsing
             format: 'json',
             options: { temperature: 0.7, top_p: 0.9 },

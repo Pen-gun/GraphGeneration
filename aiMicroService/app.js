@@ -23,11 +23,13 @@ app.use(cookieParser());
 import aiRoutes from './routes/ai.route.js';
 import userRoutes from './routes/user.route.js';
 import queryRouter from './routes/query.route.js';
+import conversationRouter from './routes/conversation.route.js';
 
 //define routes
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/queries', queryRouter);
+app.use('/api/v1/conversations', conversationRouter);
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
