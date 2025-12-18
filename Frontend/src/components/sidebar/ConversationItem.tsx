@@ -75,18 +75,18 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             <Modal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
-                title="Delete Conversation"
+                title="Confirmation"
                 footer={
                     <>
                         <button
                             onClick={() => setShowDeleteModal(false)}
-                            className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                            className="px-1 py-2 text-gray-300 hover:text-white rounded-lg transition-colors hover:cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={confirmDelete}
-                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                            className="px-1 py-2 text-red-400 hover:text-red-600 hover:cursor-pointer rounded-lg transition-colors"
                         >
                             Delete
                         </button>
@@ -94,7 +94,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                 }
             >
                 <p className="text-gray-300">
-                    Are you sure you want to delete this conversation? This action cannot be undone.
+                    Are you sure you want to delete this conversation?
                 </p>
             </Modal>
         </>
