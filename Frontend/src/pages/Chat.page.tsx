@@ -115,8 +115,24 @@ const Chat: React.FC = () => {
             addMessage(
                 { conversationId: convId, payload: { topic: query } },
                 {
-                    onSuccess: () => {
-                        // Query invalidation refreshes conversationDetailData, effect remaps messages
+                    onSuccess: (data: any) => {
+                        // Update local messages immediately with the response
+                        const assistantMsg = data?.data?.assistantMessage;
+                        if (assistantMsg) {
+                            setMessages((prev) => {
+                                const updated = [...prev];
+                                const lastMsg = updated[updated.length - 1];
+                                if (lastMsg && !lastMsg.response) {
+                                    lastMsg.response = {
+                                        points: assistantMsg.points,
+                                        diagram: assistantMsg.diagram,
+                                        reasoning: undefined,
+                                    };
+                                }
+                                return updated;
+                            });
+                        }
+                        setCurrentQuery('');
                         toast.success('Message sent');
                     },
                     onError: () => {
