@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, LogOut, User, Menu, X, Sparkles } from 'lucide-react';
-import { useGetQueries, useDeleteQuery } from '../../hooks/query.hook.tsx';
+import { useGetConversations, useDeleteConversation } from '../../hooks/conversation.hook';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../hooks/useToast.hook';
 import { ConversationItem } from './ConversationItem';
@@ -15,11 +15,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const navigate = useNavigate();
     const { conversationId } = useParams();
     const { user, logout, isAuthenticated } = useAuth();
-    const { data: queriesData, isLoading } = useGetQueries(!!isAuthenticated);
-    const deleteMutation = useDeleteQuery();
+    const { data: conversationsData, isLoading } = useGetConversations(!!isAuthenticated);
+    const deleteMutation = useDeleteConversation();
     const toast = useToast();
 
-    const queries = queriesData?.data || [];
+    const conversations = conversationsData?.data || [];
 
     const handleNewChat = () => {
         // Signal explicit new chat to Chat page
@@ -110,18 +110,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         <div className="flex items-center justify-center py-8">
                             <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
                         </div>
-                    ) : queries.length === 0 ? (
+                    ) : conversations.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
                             <p className="text-sm">No conversations yet</p>
                             <p className="text-xs mt-1">Start a new chat to begin</p>
                         </div>
                     ) : (
-                        queries.map((query: any) => (
+                        conversations.map((conv: any) => (
                             <ConversationItem
-                                key={query._id}
-                                query={query}
-                                isActive={conversationId === query._id}
-                                onClick={() => handleConversationClick(query._id)}
+                                key={conv._id}
+                                conversation={conv}
+                                isActive={conversationId === conv._id}
+                                onClick={() => handleConversationClick(conv._id)}
                                 onDelete={handleDeleteConversation}
                             />
                         ))

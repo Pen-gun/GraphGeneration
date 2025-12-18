@@ -3,8 +3,8 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { SearchBar } from '../components/search/search.component';
 import { ResultDisplay } from '../components/result/result.component';
 import { Sidebar } from '../components/sidebar/sidebar.component';
+import { useCreateConversation, useGetConversations, useGetConversationById, useAddMessageToConversation } from '../hooks/conversation.hook';
 import { useAIResponse } from '../hooks/aiHandler.hook';
-import { useCreateQuery, useGetQueries } from '../hooks/query.hook';
 import { useToast } from '../hooks/useToast.hook';
 import type { ChatMessage } from '../types/types';
 import { useAuth } from '../context/AuthContext';
@@ -16,10 +16,12 @@ const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentQuery, setCurrentQuery] = useState<string>('');
 
-    const { mutate: generateAI, data: aiData, isPending, isError } = useAIResponse();
-    const { mutate: createQuery } = useCreateQuery();
     const { isAuthenticated } = useAuth();
-    const { data: queriesData } = useGetQueries(!!isAuthenticated);
+    const { data: conversationsData } = useGetConversations(!!isAuthenticated);
+    const { data: conversationDetailData } = useGetConversationById(conversationId, !!isAuthenticated && !!conversationId);
+    const { mutate: addMessage, isPending, isError } = useAddMessageToConversation();
+    const { mutate: createConversation } = useCreateConversation();
+    const { mutate: generateAI, data: aiData } = useAIResponse();
     const toast = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -28,24 +30,34 @@ const Chat: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isPending]);
 
-    // Load conversation if conversationId exists; do NOT auto clear when it doesn't
+    // Load conversation details and map to UI messages (user+assistant pairs)
     useEffect(() => {
-        if (conversationId && queriesData?.data) {
-            const conversation = queriesData.data.find((q: any) => q._id === conversationId);
-            if (conversation) {
-                const loadedMessage: ChatMessage = {
-                    id: conversation._id,
-                    query: conversation.topic,
-                    response: {
-                        points: conversation.points,
-                        diagram: conversation.diagram,
-                    },
-                    timestamp: new Date(conversation.createdAt),
-                };
-                setMessages([loadedMessage]);
+        const conv = conversationDetailData?.data;
+        if (conv?.messages) {
+            const pairs: ChatMessage[] = [];
+            for (let i = 0; i < conv.messages.length; i++) {
+                const msg = conv.messages[i];
+                if (msg.role === 'user') {
+                    const next = conv.messages[i + 1];
+                    const item: ChatMessage = {
+                        id: msg._id,
+                        query: msg.topic || '',
+                        timestamp: new Date(msg.createdAt),
+                    };
+                    if (next && next.role === 'assistant') {
+                        item.response = {
+                            points: next.points,
+                            diagram: next.diagram,
+                            reasoning: undefined,
+                        };
+                        i++; // skip assistant in next loop iteration
+                    }
+                    pairs.push(item);
+                }
             }
+            setMessages(pairs);
         }
-    }, [conversationId, queriesData]);
+    }, [conversationDetailData]);
 
     // Clear messages only on explicit newChat navigation state
     useEffect(() => {
@@ -59,64 +71,85 @@ const Chat: React.FC = () => {
         }
     }, [location]);
 
-    // Update messages when AI data arrives
+    // Guest mode: update messages when AI data arrives
     useEffect(() => {
-        if (aiData && currentQuery) {
+        if (!isAuthenticated && aiData && currentQuery) {
             setMessages((prev) => {
                 const updated = [...prev];
                 const lastMsg = updated[updated.length - 1];
                 if (lastMsg && !lastMsg.response) {
                     lastMsg.response = aiData;
-
-                    // Save to backend only when authenticated
-                    if (isAuthenticated) {
-                        createQuery(
-                            {
-                                topic: lastMsg.query,
-                                points: Array.isArray(aiData.points)
-                                    ? aiData.points
-                                    : aiData.points.split('\n').filter((p: string) => p.trim()),
-                                diagram: aiData.diagram,
-                            },
-                            {
-                                onSuccess: () => {
-                                    toast.success('Conversation saved');
-                                },
-                                onError: () => {
-                                    toast.error('Failed to save conversation');
-                                },
-                            }
-                        );
-                    }
                 }
                 return updated;
             });
             setCurrentQuery('');
         }
-    }, [aiData, currentQuery, createQuery, toast]);
+    }, [aiData, currentQuery, isAuthenticated]);
 
     const handleSearch = (query: string) => {
-        // Don't allow new queries if viewing a saved conversation
-        if (conversationId) {
-            toast.warning('Create a new chat to ask another question');
+        if (!isAuthenticated) {
+            // Guest mode: do not hit protected endpoints; call AI directly
+            const userMsg: ChatMessage = {
+                id: `msg-${Date.now()}`,
+                query,
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, userMsg]);
+            setCurrentQuery(query);
+            generateAI(query, {
+                onError: () => toast.error('Failed to generate response')
+            });
             return;
         }
 
-        // Add user message immediately
-        const newMessage: ChatMessage = {
-            id: `msg-${Date.now()}`,
-            query,
-            timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, newMessage]);
-        setCurrentQuery(query);
+        const sendToConversation = (convId: string) => {
+            // Optimistic UI: push user question
+            const userMsg: ChatMessage = {
+                id: `msg-${Date.now()}`,
+                query,
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, userMsg]);
+            setCurrentQuery(query);
 
-        generateAI(query, {
-            onError: (error) => {
-                console.error('Error fetching AI response:', error);
-                toast.error('Failed to generate response');
-            },
-        });
+            addMessage(
+                { conversationId: convId, payload: { topic: query } },
+                {
+                    onSuccess: () => {
+                        // Query invalidation refreshes conversationDetailData, effect remaps messages
+                        toast.success('Message sent');
+                    },
+                    onError: () => {
+                        toast.error('Failed to send message');
+                    },
+                }
+            );
+        };
+
+        if (conversationId) {
+            // Append to existing conversation
+            sendToConversation(conversationId);
+        } else {
+            // Create a new conversation from first query
+            createConversation(
+                { title: query.slice(0, 60) },
+                {
+                    onSuccess: (res: any) => {
+                        const conv = res?.data;
+                        if (conv?._id) {
+                            // Update URL for this chat
+                            window.history.replaceState({}, '', `/chat/${conv._id}`);
+                            sendToConversation(conv._id);
+                        } else {
+                            toast.error('Failed to create conversation');
+                        }
+                    },
+                    onError: () => {
+                        toast.error('Failed to create conversation');
+                    },
+                }
+            );
+        }
     };
 
     if (isError) {
@@ -216,11 +249,7 @@ const Chat: React.FC = () => {
                         <SearchBar
                             onSearch={handleSearch}
                             hasResults={true}
-                            placeholder={
-                                conversationId
-                                    ? 'Start a new chat to ask another question...'
-                                    : 'Enter a topic to generate a graph...'
-                            }
+                            placeholder={'Enter a topic to generate a graph...'}
                         />
                     </div>
                 )}

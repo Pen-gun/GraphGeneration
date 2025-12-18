@@ -39,6 +39,7 @@ const useLoginUser = () => {
         },
         onSuccess: (data) => {
             console.log("User logged in successfully:", data);
+            try { window.localStorage.setItem('isAuthenticated', 'true'); } catch {}
             queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {
@@ -60,6 +61,9 @@ const useLogoutUser = () => {
             queryClient.setQueryData(userKey, null);
             // Also clear any cached queries/history so guests don't see old data
             queryClient.removeQueries({ queryKey: ['queries'] });
+            queryClient.removeQueries({ queryKey: ['conversations'] });
+            queryClient.removeQueries({ queryKey: ['conversation'] });
+            try { window.localStorage.removeItem('isAuthenticated'); } catch {}
             queryClient.invalidateQueries({ queryKey: userKey });
         },
         onError: (error) => {

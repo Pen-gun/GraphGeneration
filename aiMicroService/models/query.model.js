@@ -17,11 +17,13 @@ const querySchema = new Schema({
     },
     points: {
         type: [String],
-        required: true,
+        required: function () { return this.role === 'assistant'; },
+        default: [],
     },
     diagram: {
         type: String,
-        required: true,
+        required: function () { return this.role === 'assistant'; },
+        default: '',
     },
     role: {
         type: String,

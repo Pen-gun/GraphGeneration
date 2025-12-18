@@ -87,7 +87,7 @@ const addQueryToConversation = asyncHandler(async (req, res) => {
             path: 'messages',
             options: { sort: { createdAt: 1 } }
         });
-    
+
     if (!conversation) {
         throw new apiError(404, "conversation not found or access denied");
     }
@@ -146,9 +146,9 @@ const addQueryToConversation = asyncHandler(async (req, res) => {
     await conversation.save();
 
     return res.status(201).json(
-        new apiResponse(201, { 
-            userMessage, 
-            assistantMessage 
+        new apiResponse(201, {
+            userMessage,
+            assistantMessage
         }, "query processed and response generated successfully!")
     );
 });

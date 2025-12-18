@@ -32,6 +32,31 @@ export interface Query {
     updatedAt: string;
 }
 
+export interface Message {
+    _id: string;
+    conversationId: string;
+    owner: string;
+    topic?: string;
+    points: string[];
+    diagram: string;
+    role: 'user' | 'assistant';
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ConversationMeta {
+    _id: string;
+    owner: string;
+    title: string;
+    lastMessage: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ConversationDetail extends ConversationMeta {
+    messages: Message[];
+}
+
 export interface ChatMessage {
     id: string;
     query: string;

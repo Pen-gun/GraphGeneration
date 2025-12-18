@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { MessageSquare, Trash2 } from 'lucide-react';
-import type { Query } from '../../types/types.ts';
+import type { ConversationMeta } from '../../types/types.ts';
 import { Modal } from '../common/Modal';
 
 interface ConversationItemProps {
-    query: Query;
+    conversation: ConversationMeta;
     isActive: boolean;
     onClick: () => void;
     onDelete: (id: string) => void;
 }
 
 export const ConversationItem: React.FC<ConversationItemProps> = ({
-    query,
+    conversation,
     isActive,
     onClick,
     onDelete,
@@ -24,7 +24,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
     };
 
     const confirmDelete = () => {
-        onDelete(query._id);
+        onDelete(conversation._id);
         setShowDeleteModal(false);
     };
 
@@ -56,10 +56,10 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                 <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium truncate ${isActive ? 'text-white' : 'text-gray-300'
                         }`}>
-                        {query.topic}
+                        {conversation.title}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
-                        {formatDate(query.createdAt)}
+                        {formatDate(conversation.updatedAt || conversation.lastMessage)}
                     </p>
                 </div>
 

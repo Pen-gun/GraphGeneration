@@ -19,7 +19,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Only try refresh if user is known to be authenticated
+    const isAuthed = typeof window !== 'undefined' && window.localStorage?.getItem('isAuthenticated') === 'true';
+
+    const url: string = originalRequest?.url || '';
+    const isRefreshCall = url.includes('/users/refresh-token');
+    const isAuthEndpoints = url.includes('/users/login') || url.includes('/users/logout') || url.includes('/users/register');
+
+    if (error.response?.status === 401 && !originalRequest._retry && isAuthed && !isRefreshCall && !isAuthEndpoints) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
