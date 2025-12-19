@@ -362,3 +362,7 @@ For support, email namshang715@gmail.com or open an issue in the GitHub reposito
 ---
 
 **Built with ❤️ using React, Node.js, and AI**
+ 
+## 📄 Documentation
+
+- Weekly Log (10 Weeks): See [WEEKLY_LOG.md](WEEKLY_LOG.md) for a concise week-by-week activity summary.
