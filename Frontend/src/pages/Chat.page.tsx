@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { SearchBar } from '../components/search/search.component';
 import { ResultDisplay } from '../components/result/result.component';
 import { Sidebar } from '../components/sidebar/sidebar.component';
@@ -10,22 +10,30 @@ import type { ChatMessage } from '../types/types';
 import { useAuth } from '../context/AuthContext';
 
 const Chat: React.FC = () => {
-    const { conversationId } = useParams();
+    const { conversationId: paramConversationId } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [currentQuery, setCurrentQuery] = useState<string>('');
+    const [activeConversationId, setActiveConversationId] = useState<string | undefined>(paramConversationId);
 
     const { isAuthenticated } = useAuth();
     const { data: conversationsData } = useGetConversations(!!isAuthenticated);
-    const { data: conversationDetailData } = useGetConversationById(conversationId, !!isAuthenticated && !!conversationId);
+    // Use activeConversationId instead of paramConversationId to stay in sync
+    const { data: conversationDetailData } = useGetConversationById(activeConversationId, !!isAuthenticated && !!activeConversationId);
     const { mutate: addMessage, isPending, isError } = useAddMessageToConversation();
     const { mutate: createConversation } = useCreateConversation();
     const { mutate: generateAI, data: aiData } = useAIResponse();
     const toast = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Auto-scroll to latest message
+    // Sync activeConversationId with URL param when it changes
+    useEffect(() => {
+        if (paramConversationId) {
+            setActiveConversationId(paramConversationId);
+        }
+    }, [paramConversationId]);
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isPending]);
@@ -103,6 +111,9 @@ const Chat: React.FC = () => {
         }
 
         const sendToConversation = (convId: string) => {
+            // Update local state immediately so subsequent queries use this ID
+            setActiveConversationId(convId);
+            
             // Optimistic UI: push user question
             const userMsg: ChatMessage = {
                 id: `msg-${Date.now()}`,
@@ -116,7 +127,7 @@ const Chat: React.FC = () => {
                 { conversationId: convId, payload: { topic: query } },
                 {
                     onSuccess: (data: any) => {
-                        // Update local messages immediately with the response
+                        // Optimistic: immediately show response
                         const assistantMsg = data?.data?.assistantMessage;
                         if (assistantMsg) {
                             setMessages((prev) => {
@@ -133,35 +144,40 @@ const Chat: React.FC = () => {
                             });
                         }
                         setCurrentQuery('');
-                        toast.success('Message sent');
                     },
-                    onError: () => {
-                        toast.error('Failed to send message');
+                    onError: (error: any) => {
+                        const errorMsg = error?.response?.data?.message || 'Failed to send message';
+                        toast.error(errorMsg);
                     },
                 }
             );
         };
 
-        if (conversationId) {
+        if (activeConversationId) {
             // Append to existing conversation
-            sendToConversation(conversationId);
+            sendToConversation(activeConversationId);
         } else {
             // Create a new conversation from first query
             createConversation(
                 { title: query.slice(0, 60) },
                 {
                     onSuccess: (res: any) => {
-                        const conv = res?.data;
-                        if (conv?._id) {
-                            // Update URL for this chat
-                            window.history.replaceState({}, '', `/chat/${conv._id}`);
-                            sendToConversation(conv._id);
+                        // Handle both response structures: res.data or res._id directly
+                        const conv = res?.data?._id ? res.data : (res?._id ? res : null);
+                        const convId = conv?._id || res?._id || res?.data?._id;
+                        
+                        if (convId) {
+                            // Send message to the new conversation
+                            sendToConversation(convId);
+                            // Update URL after
+                            navigate(`/chat/${convId}`);
                         } else {
+                            console.error('Conversation response structure:', res);
                             toast.error('Failed to create conversation');
                         }
                     },
-                    onError: () => {
-                        toast.error('Failed to create conversation');
+                    onError: (error: any) => {
+                        console.log('Create conversation error:', error);
                     },
                 }
             );
@@ -191,7 +207,7 @@ const Chat: React.FC = () => {
     return (
         <div className="flex h-screen bg-slate-900 overflow-hidden">
             {/* Sidebar */}
-            <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+            <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} activeConversationId={activeConversationId} />
 
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col relative">

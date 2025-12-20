@@ -56,7 +56,9 @@ export const useAddMessageToConversation = () => {
       return res.data;
     },
     onSuccess: (_data, variables) => {
+      // Invalidate and refetch conversation details to ensure messages array is up-to-date
       qc.invalidateQueries({ queryKey: ["conversation", variables.conversationId] });
+      qc.refetchQueries({ queryKey: ["conversation", variables.conversationId] });
       qc.invalidateQueries({ queryKey: conversationsKey });
     },
   });

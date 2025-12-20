@@ -9,9 +9,10 @@ import { ConversationItem } from './ConversationItem';
 interface SidebarProps {
     isOpen: boolean;
     onToggle: () => void;
+    activeConversationId?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeConversationId }) => {
     const navigate = useNavigate();
     const { conversationId } = useParams();
     const { user, logout, isAuthenticated } = useAuth();
@@ -120,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             <ConversationItem
                                 key={conv._id}
                                 conversation={conv}
-                                isActive={conversationId === conv._id}
+                                isActive={(activeConversationId || conversationId) === conv._id}
                                 onClick={() => handleConversationClick(conv._id)}
                                 onDelete={handleDeleteConversation}
                             />
